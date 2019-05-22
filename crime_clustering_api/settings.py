@@ -81,6 +81,7 @@ WSGI_APPLICATION = "crime_clustering_api.wsgi.application"
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 import dj_database_url
+DATABASES = {}
 DATABASES['default'] =  dj_database_url.config()
 """DATABASES = {
     "default": {
