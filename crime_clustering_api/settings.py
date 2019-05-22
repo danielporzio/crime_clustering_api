@@ -80,17 +80,19 @@ WSGI_APPLICATION = "crime_clustering_api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
+import dj_database_url
+DATABASES['default'] =  dj_database_url.config()
+"""DATABASES = {
     "default": {
         "ENGINE" : "django.db.backends.postgresql",
-        
-    }
-}
-"""'NAME': env('DATABASE_NAME'),
+        'NAME': env('DATABASE_NAME'),
         'USER': env('USER_POSTGRES'),
         'PASSWORD': env('PASSWORD_POSTGRES'),
         'HOST': '127.0.0.1',
-        'PORT': env('PORT_DB'),"""
+        'PORT': env('PORT_DB'),
+    }
+}"""
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
