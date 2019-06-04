@@ -9,8 +9,7 @@ class Crime(models.Model):
     domestic = models.BooleanField(default=True)
     distrct = models.IntegerField(null=True)
     community_areas = models.IntegerField(null=True)
-    latitude = models.FloatField(null=True)
-    longitude = models.FloatField(null=True)
+    latitude = models.FloatField(null=False)
+    longitude = models.FloatField(null=False)
     year = models.IntegerField(null=True)
-
     created_at = models.DateTimeField(auto_now_add=True)

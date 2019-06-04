@@ -21,12 +21,10 @@ class Command(BaseCommand):
         run_seed(self, options['mode'])
         self.stdout.write('done.')
 
-
 def clear_data():
     """Deletes all the table data"""
     logger.info("Delete Crime instances")
     Crime.objects.all().delete()
-
 
 def create_crime(attributes):
     """Creates all crimes object"""
@@ -48,9 +46,18 @@ def create_crime(attributes):
     logger.info("{} crime created.".format(crime))
     return crime
 
+def isDigit(str):
+    str.isdigit()
+
+def validateDate(date_text):
+    try:
+        datetime.strptime(date_text, '%m/%d/%Y %H:%M:%S %p')
+        return True
+    except ValueError:
+        return False
+
 def run_seed(self, mode):
     """ Seed database based on mode
-
     :param mode: refresh / clear
     :return:
     """
@@ -65,15 +72,15 @@ def run_seed(self, mode):
                 longitude = row[21]
                 if latitude and longitude:
                     attributes = {
-                        'occured_at': datetime.strptime(row[3], '%m/%d/%Y %H:%M:%S %p'),
+                        'occured_at': datetime.strptime(row[3], '%m/%d/%Y %H:%M:%S %p') if validateDate(row[3]) else None,
                         'primary_type': row[6],
                         'description': row[7],
                         'location_description': row[8],
                         'arrest': bool(row[9]),
                         'domestic': bool(row[10]),
-                        'distrct': int(row[12]),
-                        'community_areas': int(row[14]),
-                        'year': int(row[18]),
+                        'distrct': int(row[12]) if isDigit(row[12]) else None,
+                        'community_areas': int(row[14]) if isDigit(row[14]) else None,
+                        'year': int(row[18]) if isDigit(row[18]) else None,
                         'latitude': float(latitude),
                         'longitude': float(longitude)
                     }
