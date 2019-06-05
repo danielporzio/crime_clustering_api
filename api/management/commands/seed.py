@@ -61,7 +61,7 @@ def run_seed(self, mode):
     :param mode: refresh / clear
     :return:
     """
-    with open('data\Chicago_Crimes_2005.csv') as csv_file:
+    with open('data/Chicago_Crimes_2005.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         first = True
         for row in csv_reader:
@@ -84,4 +84,4 @@ def run_seed(self, mode):
                         'latitude': float(latitude),
                         'longitude': float(longitude)
                     }
-                    create_crime(attributes)               
+                    create_crime(attributes)
