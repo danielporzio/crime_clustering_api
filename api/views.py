@@ -1,6 +1,10 @@
+from django.http import HttpResponse
+from django.shortcuts import render
 from rest_framework import generics
 from .serializers import CrimeSerializer
 from .models import Crime
+from .clustering import hdbscan
+
 
 class CreateView(generics.ListCreateAPIView):
   serializer_class = CrimeSerializer
