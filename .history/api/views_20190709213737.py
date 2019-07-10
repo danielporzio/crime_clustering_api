@@ -15,5 +15,5 @@ class CreateView(generics.ListCreateAPIView):
     return model
 
 class DetailsView(generics.RetrieveUpdateDestroyAPIView):
-  queryset = Crime.objects.all()
-  serializer_class = CrimeSerializer
+    queryset = Crime.objects.all()
+    serializer_class = CrimeSerializer
