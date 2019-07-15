@@ -9,10 +9,15 @@ class CreateView(generics.ListCreateAPIView):
 
   def get_queryset(self):
     model = Crime.objects
-    for k,vals in self.request.GET.lists():
+    params = self.request.GET.copy()
+    algorithm = params.pop('algorithm', 'None')[0]
+    for k,vals in params.lists():
       for v in vals:
         model = model.filter(**{k: v})
-    return model
+    if algorithm == 'None':
+        return model
+    else:
+        return model
 
 class DetailsView(generics.RetrieveUpdateDestroyAPIView):
   queryset = Crime.objects.all()
