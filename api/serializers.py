@@ -2,8 +2,9 @@ from rest_framework import serializers
 from .models import Crime
 
 class CrimeSerializer(serializers.ModelSerializer):
-    """Serializer to map the Model instance into JSON format."""
+    label=serializers.SerializerMethodField()
+    def get_label(self, obj):
+        return obj['label']
     class Meta:
-        """Meta class to map serializer's fields with the model fields."""
         model = Crime
-        fields = '__all__'
+        fields=('latitude','longitude','label')
