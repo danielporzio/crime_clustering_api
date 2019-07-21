@@ -1,37 +1,36 @@
-# import hdbscan
-from sklearn.cluster import DBSCAN
-import pandas as pd
 from ..models import Crime
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import KMeans
+import pandas as pd
 import hdbscan
-import pdb
 
 class Clustering:
-    def dbscan(data):
-        clustering = DBSCAN(eps=0.015).fit(data)
-        return clustering.labels_
-
-    def hdbscan(data):
-        clustering = hdbscan.HDBSCAN().fit(data)
-        return clustering.labels_
-
-    def clusterize(data, algorithm):
+    def generate_data_frame(data):
         variables = data[0].keys()
         df = pd.DataFrame(data, columns = variables)
         include = ['latitude' , 'longitude']
-        df_ = df[include]
+        return df[include]
 
+    def run_algorithm(data_frame, algorithm):
         if algorithm == 'DBSCAN':
-          labels = Clustering.dbscan(df_)
+          labels = DBSCAN(eps=0.015).fit(data_frame).labels_
         elif algorithm == 'DBSCAN++':
           return data
         elif algorithm == 'HDBSCAN':
-          labels = Clustering.hdbscan(df_)
+          labels = hdbscan.HDBSCAN().fit(data_frame).labels_
         else:
-          return data
+          labels = KMeans().fit(data_frame).labels_
+        return labels
 
-        df_list = df_.values.tolist()
+    def build_model(data_frame, labels):
+        df_list = data_frame.values.tolist()
         models = []
-        for i in range(len(df_)):
+        for i in range(len(data_frame)):
           model = {'latitude': df_list[i][0], 'longitude': df_list[i][1], 'label': labels[i]}
           models.append(model)
         return models
+
+    def clusterize(data, algorithm):
+        df_ = Clustering.generate_data_frame(data)
+        labels = Clustering.run_algorithm(df_, algorithm)
+        return Clustering.build_model(df_, labels)

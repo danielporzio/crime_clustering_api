@@ -2,7 +2,6 @@ from rest_framework import generics
 from .serializers import CrimeSerializer
 from .models import Crime
 from .interactors.clustering import Clustering
-import pdb
 
 class CreateView(generics.ListCreateAPIView):
   serializer_class = CrimeSerializer

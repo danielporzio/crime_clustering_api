@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Crime
-import pdb
 
 class CrimeSerializer(serializers.ModelSerializer):
     label=serializers.SerializerMethodField()
