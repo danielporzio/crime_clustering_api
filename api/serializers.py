@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Crime
 
 class CrimeSerializer(serializers.ModelSerializer):
-    label=serializers.SerializerMethodField()
+    label = serializers.SerializerMethodField()
     def get_label(self, obj):
         label = 0
         if isinstance(obj, dict):

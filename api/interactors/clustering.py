@@ -14,8 +14,6 @@ class Clustering:
     def run_algorithm(data_frame, algorithm):
         if algorithm == 'DBSCAN':
           labels = DBSCAN(eps=0.015).fit(data_frame).labels_
-        elif algorithm == 'DBSCAN++':
-          return data
         elif algorithm == 'HDBSCAN':
           labels = hdbscan.HDBSCAN().fit(data_frame).labels_
         else:
