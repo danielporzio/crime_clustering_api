@@ -19,6 +19,7 @@ class CreateView(generics.ListCreateAPIView):
         algorithm_params['min_cluster_size'] = params.pop('minClusterSize', ['None'])[0]
         algorithm_params['min_sample_size'] = params.pop('minSamples', ['None'])[0]
         algorithm_params['n_clusters'] = params.pop('numberClusters', ['None'])[0]
+        algorithm_params['use_weights'] = params.pop('useWeights', ['None'])[0]
 
         filtered_attributes = []
         for k, vals in params.lists():
