@@ -12,4 +12,5 @@ class Crime(models.Model):
     latitude = models.FloatField(null=False)
     longitude = models.FloatField(null=False)
     year = models.IntegerField(null=True)
+    crime_weight = models.FloatField(null=False, default=1)
     created_at = models.DateTimeField(auto_now_add=True)
