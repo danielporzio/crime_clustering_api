@@ -7,7 +7,7 @@ def clusterize(data, algorithm, algorithm_params):
     df_ = generate_data_frame(data)
     sample_weights = get_weights(data, algorithm_params['use_weights'])
     labels = run_algorithm(df_, sample_weights, algorithm, algorithm_params)
-    return build_model(df_, labels)
+    return build_model(df_, labels, data)
 
 def generate_data_frame(data):
     variables = data[0].keys()
@@ -30,11 +30,16 @@ def run_algorithm(data_frame, sample_weights, algorithm, algorithm_params):
         labels = kmeans(data_frame, sample_weights, algorithm_params)
     return labels
 
-def build_model(data_frame, labels):
+def build_model(data_frame, labels, data):
     df_list = data_frame.values.tolist()
     models = []
     for i in range(len(data_frame)):
-        model = {'latitude': df_list[i][0], 'longitude': df_list[i][1], 'label': labels[i]}
+        model = {
+            'latitude': df_list[i][0],
+            'longitude': df_list[i][1],
+            'label': labels[i],
+            'crime_weight': data[i]['crime_weight']
+        }
         models.append(model)
     return models
 
