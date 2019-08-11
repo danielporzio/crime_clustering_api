@@ -10,4 +10,4 @@ class CrimeSerializer(serializers.ModelSerializer):
         return label
     class Meta:
         model = Crime
-        fields=('latitude','longitude','label')
+        fields=('latitude','longitude','label', 'crime_weight')

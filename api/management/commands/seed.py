@@ -8,6 +8,44 @@ import csv
 
 logger = logging.getLogger(__name__)
 
+CRIME_WEIGHT = {
+    'THEFT': 2,
+    'BATTERY': 4,
+    'CRIMINAL DAMAGE': 2,
+    'NARCOTICS': 4,
+    'ASSAULT': 3,
+    'OTHER OFFENSE': 1,
+    'BURGLARY': 2,
+    'MOTOR VEHICLE THEFT': 2,
+    'DECEPTIVE PRACTICE': 2,
+    'ROBBERY': 3,
+    'CRIMINAL TRESPASS': 1,
+    'WEAPONS VIOLATION': 3,
+    'PROSTITUTION': 2,
+    'PUBLIC PEACE VIOLATION': 2,
+    'OFFENSE INVOLVING CHILDREN': 4,
+    'CRIM SEXUAL ASSAULT': 8,
+    'SEX OFFENSE': 3,
+    'INTERFERENCE WITH PUBLIC OFFICER': 2,
+    'GAMBLING': 1,
+    'LIQUOR LAW VIOLATION': 1,
+    'ARSON': 4,
+    'HOMICIDE': 8,
+    'KIDNAPPING': 8,
+    'INTIMIDATION': 2,
+    'STALKING': 2,
+    'OBSCENITY': 2,
+    'CONCEALED CARRY LICENSE VIOLATION': 3,
+    'NON-CRIMINAL': 1,
+    'PUBLIC INDECENCY': 2,
+    'OTHER NARCOTIC VIOLATION': 4,
+    'HUMAN TRAFFICKING': 8,
+    'NON - CRIMINAL': 1,
+    'RITUALISM': 1,
+    'NON-CRIMINAL (SUBJECT SPECIFIED)': 1,
+    'DOMESTIC VIOLENCE': 3
+}
+
 # python manage.py seed --mode=refresh
 
 class Command(BaseCommand):
@@ -26,6 +64,13 @@ def clear_data():
     logger.info("Delete Crime instances")
     Crime.objects.all().delete()
 
+def get_crime_weigth(primary_type):
+    crime_weight = 1
+    if primary_type in CRIME_WEIGHT:
+        crime_weight = CRIME_WEIGHT[primary_type]
+    return crime_weight
+
+
 def create_crime(attributes):
     """Creates all crimes object"""
     logger.info("Creating crime")
@@ -41,7 +86,8 @@ def create_crime(attributes):
         community_areas = attributes['community_areas'],
         year = attributes['year'],
         latitude = attributes['latitude'],
-        longitude = attributes['longitude'])
+        longitude = attributes['longitude'],
+        crime_weight = get_crime_weigth(attributes['primary_type']))
     crime.save()
     logger.info("{} crime created.".format(crime))
     return crime
