@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 CRIME_WEIGHT = {
     'THEFT': 2,
-    'BATTERY': 4,
+    'BATTERY': 10,
     'CRIMINAL DAMAGE': 2,
-    'NARCOTICS': 4,
+    'NARCOTICS': 10,
     'ASSAULT': 3,
     'OTHER OFFENSE': 1,
     'BURGLARY': 2,
@@ -23,23 +23,23 @@ CRIME_WEIGHT = {
     'WEAPONS VIOLATION': 3,
     'PROSTITUTION': 2,
     'PUBLIC PEACE VIOLATION': 2,
-    'OFFENSE INVOLVING CHILDREN': 4,
-    'CRIM SEXUAL ASSAULT': 8,
+    'OFFENSE INVOLVING CHILDREN': 10,
+    'CRIM SEXUAL ASSAULT': 20,
     'SEX OFFENSE': 3,
     'INTERFERENCE WITH PUBLIC OFFICER': 2,
     'GAMBLING': 1,
     'LIQUOR LAW VIOLATION': 1,
-    'ARSON': 4,
-    'HOMICIDE': 8,
-    'KIDNAPPING': 8,
+    'ARSON': 10,
+    'HOMICIDE': 20,
+    'KIDNAPPING': 20,
     'INTIMIDATION': 2,
     'STALKING': 2,
     'OBSCENITY': 2,
     'CONCEALED CARRY LICENSE VIOLATION': 3,
     'NON-CRIMINAL': 1,
     'PUBLIC INDECENCY': 2,
-    'OTHER NARCOTIC VIOLATION': 4,
-    'HUMAN TRAFFICKING': 8,
+    'OTHER NARCOTIC VIOLATION': 10,
+    'HUMAN TRAFFICKING': 20,
     'NON - CRIMINAL': 1,
     'RITUALISM': 1,
     'NON-CRIMINAL (SUBJECT SPECIFIED)': 1,
@@ -107,27 +107,30 @@ def run_seed(self, mode):
     :param mode: refresh / clear
     :return:
     """
-    with open('data/Chicago_Crimes_2005.csv') as csv_file:
+    with open('data/Chicago_Crimes_2005_to_2007.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         first = True
+        cant = 0
         for row in csv_reader:
-            if first:
-                first = False
-            else:
-                latitude = row[20]
-                longitude = row[21]
-                if latitude and longitude:
-                    attributes = {
-                        'occured_at': datetime.strptime(row[3], '%m/%d/%Y %H:%M:%S %p') if validateDate(row[3]) else None,
-                        'primary_type': row[6],
-                        'description': row[7],
-                        'location_description': row[8],
-                        'arrest': bool(row[9]),
-                        'domestic': bool(row[10]),
-                        'distrct': int(row[12]) if isDigit(row[12]) else None,
-                        'community_areas': int(row[14]) if isDigit(row[14]) else None,
-                        'year': int(row[18]) if isDigit(row[18]) else None,
-                        'latitude': float(latitude),
-                        'longitude': float(longitude)
-                    }
-                    create_crime(attributes)
+            cant = cant + 1
+            if cant < 50000:
+                if first:
+                    first = False
+                else:
+                    latitude = row[20]
+                    longitude = row[21]
+                    if latitude and longitude:
+                        attributes = {
+                            'occured_at': datetime.strptime(row[3], '%m/%d/%Y %H:%M:%S %p') if validateDate(row[3]) else None,
+                            'primary_type': row[6],
+                            'description': row[7],
+                            'location_description': row[8],
+                            'arrest': bool(row[9]),
+                            'domestic': bool(row[10]),
+                            'distrct': int(row[12]) if isDigit(row[12]) else None,
+                            'community_areas': int(row[14]) if isDigit(row[14]) else None,
+                            'year': int(row[18]) if isDigit(row[18]) else None,
+                            'latitude': float(latitude),
+                            'longitude': float(longitude)
+                        }
+                        create_crime(attributes)
