@@ -50,7 +50,7 @@ def dbscan(data_frame, sample_weights, params):
     min_samples = 5
     if params['min_sample_size'] != 'None':
         min_samples = int(params['min_sample_size'])
-    return DBSCAN(eps, min_samples).fit(data_frame, sample_weights).labels_
+    return DBSCAN(eps, min_samples).fit(data_frame, sample_weight=sample_weights).labels_
 
 def hdbscan_algorithm(data_frame, params):
     min_cluster_size = 5
@@ -65,4 +65,4 @@ def kmeans(data_frame, sample_weights, params):
     n_clusters = 8
     if params['n_clusters'] != 'None':
         n_clusters = int(params['n_clusters'])
-    return KMeans(n_clusters).fit(data_frame, sample_weights).labels_
+    return KMeans(n_clusters).fit(data_frame, sample_weight=sample_weights).labels_
