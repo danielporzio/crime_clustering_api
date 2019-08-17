@@ -24,7 +24,7 @@ def minmax(data_frame, sample_weights, params):
         min_cluster_weight = int(params['min_cluster_weight'])
         max_clusters = floor(total_weight/min_cluster_weight)
 
-    min_clusters = 3
+    min_clusters = 2
     if params['max_cluster_weight'] != 'None':
         max_cluster_weight = int(params['max_cluster_weight'])
         min_clusters = floor(total_weight/max_cluster_weight)
@@ -32,7 +32,12 @@ def minmax(data_frame, sample_weights, params):
     return find_k(data_frame, sample_weights, min_clusters, max_clusters, min_cluster_weight, max_cluster_weight)
 
 def find_k(data_frame, sample_weights, min_clusters, max_clusters, min_cluster_weight, max_cluster_weight):
-    increment = ceil((max_clusters - min_clusters) / 10)
+    # increment = ceil((max_clusters - min_clusters) / 10)
+    if ((max_clusters - min_clusters) > 20):
+        increment = 2
+    else:
+        increment = 1
+
     k = min_clusters
     satisfies = False
     while (k <= max_clusters) and (not satisfies):
