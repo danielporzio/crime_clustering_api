@@ -2,8 +2,8 @@ import pandas as pd
 import hdbscan
 from api.interactors.weighted_mm_kmeans import main_kmeans_weighted
 
-from sklearn.cluster import DBSCAN
 from sklearn.cluster import KMeans
+from . import dbscan
 
 def clusterize(data, algorithm, algorithm_params):
     df_ = generate_data_frame(data)
@@ -25,7 +25,7 @@ def get_weights(data, use_weights):
 
 def run_algorithm(data_frame, sample_weights, algorithm, algorithm_params):
     if algorithm == 'DBSCAN':
-        labels = dbscan(data_frame, sample_weights, algorithm_params)
+        labels = dbscan.run(data_frame, sample_weights, algorithm_params)
     elif algorithm == 'HDBSCAN':
         labels = hdbscan_algorithm(data_frame, algorithm_params)
     elif algorithm == 'WEIGHTED-MM-KMEANS':
@@ -46,15 +46,6 @@ def build_model(data_frame, labels, data):
         }
         models.append(model)
     return models
-
-def dbscan(data_frame, sample_weights, params):
-    eps = 0.015
-    if params['eps'] != 'None':
-        eps = float(params['eps'])
-    min_samples = 5
-    if params['min_sample_size'] != 'None':
-        min_samples = int(params['min_sample_size'])
-    return DBSCAN(eps, min_samples).fit(data_frame, sample_weight=sample_weights).labels_
 
 def hdbscan_algorithm(data_frame, params):
     min_cluster_size = 5
