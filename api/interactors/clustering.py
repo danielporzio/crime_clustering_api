@@ -6,7 +6,6 @@ from sklearn.cluster import DBSCAN
 from . import kmeans
 from math import floor
 from numpy.random import randint
-import pdb
 
 def clusterize(data, algorithm, algorithm_params):
     df_ = generate_data_frame(data)
@@ -73,7 +72,4 @@ def kmeansMinMax(data_frame, sample_weights, params):
     if params['min_max'] == 'True':
       min = int(params['min_cluster_weight'])
       max = int(params['max_cluster_weight'])
-    else:
-      min = 0
-      max = 0
     return main_kmeans_weighted(data_frame, sample_weights, min, max)
