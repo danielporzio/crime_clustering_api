@@ -35,7 +35,7 @@ class CreateView(generics.ListCreateAPIView):
             model = filtered_attributes[0]
             for attribute in filtered_attributes:
                 model = model.intersection(attribute)
-        model = model.all()[:10000]
+        model = model.all()[:40000]
         if algorithm == 'None':
             return model
         return clustering.clusterize(model.values(), algorithm, algorithm_params)
