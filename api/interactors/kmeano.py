@@ -1,5 +1,6 @@
 from math import floor
 from sklearn.cluster import KMeans
+from scipy.sparse.csgraph import shortest_path
 
 class Kmeano:
     def __init__(self, data_frame, sample_weights):
@@ -86,7 +87,8 @@ class Kmeano:
 
     def generate_mst(self, center_matrix):
         # return minimum spanning tree from center_matrix
-        return True
+        dist_matrix = shortest_path(center_matrix, 'auto')
+        return dist_matrix
 
     def find_unbalanced_cluster(self):
         # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
