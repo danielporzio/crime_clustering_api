@@ -1,10 +1,11 @@
 import pandas as pd
 import hdbscan
+from api.interactors.weighted_mm_kmeans import main_kmeans_weighted
+
 from sklearn.cluster import DBSCAN
 from . import kmeans
 from math import floor
 from numpy.random import randint
-import pdb
 
 def clusterize(data, algorithm, algorithm_params):
     df_ = generate_data_frame(data)
@@ -29,6 +30,8 @@ def run_algorithm(data_frame, sample_weights, algorithm, algorithm_params):
         labels = dbscan(data_frame, sample_weights, algorithm_params)
     elif algorithm == 'HDBSCAN':
         labels = hdbscan_algorithm(data_frame, algorithm_params)
+    elif algorithm == 'WEIGHTED-MM-KMEANS':
+        labels = kmeansMinMax(data_frame, sample_weights, algorithm_params)
     else:
         labels = kmeans.run(data_frame, sample_weights, algorithm_params)
     return labels
@@ -63,3 +66,10 @@ def hdbscan_algorithm(data_frame, params):
     if params['min_sample_size'] != 'None':
         min_samples = int(params['min_sample_size'])
     return hdbscan.HDBSCAN(min_cluster_size, min_samples).fit(data_frame).labels_
+
+def kmeansMinMax(data_frame, sample_weights, params):
+    n_clusters = 8
+    if params['min_max'] == 'True':
+      min = int(params['min_cluster_weight'])
+      max = int(params['max_cluster_weight'])
+    return main_kmeans_weighted(data_frame, sample_weights, min, max)
