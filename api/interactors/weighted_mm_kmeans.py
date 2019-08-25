@@ -144,18 +144,17 @@ def weighted_mm_kmeans(data = [], k=5, weights = [], min_weight = 1, max_weight 
     print('no clustering found')
     return ([-1] * (len(data)))
 
-def getKforMinMax(min, max, number_of_points):
-  k_min = number_of_points / max
-  k_max = number_of_points / min
+def getKforMinMax(min, max, total_weight):
+  k_min = total_weight / max
+  k_max = total_weight / min
   return (round(k_min), math.floor(k_max))
 
-def main_kmeans_weighted(data_frames, sample_weights, n_clusters):
+def main_kmeans_weighted(data_frames, sample_weights, min, max):
   if sample_weights == None:
     weights = ([1] * (len(data_frames)))
   else:
     weights = sample_weights
-  min = 2
-  max = 6000
+
   data = data_frames.as_matrix()
   new_data = []
   for i in range(len(data)):
@@ -165,6 +164,7 @@ def main_kmeans_weighted(data_frames, sample_weights, n_clusters):
     new_data.append(row)
   (k_min, k_max) = getKforMinMax(min, max, sum(weights))
   for i in range(k_min, k_max):
+    print(i)
     res = weighted_mm_kmeans(new_data, i, weights, min, max , 1)
     if res[0] > -1:
       return res
