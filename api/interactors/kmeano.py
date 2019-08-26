@@ -1,4 +1,5 @@
 from math import floor
+from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans
 from scipy.sparse.csgraph import shortest_path
 
@@ -12,13 +13,12 @@ class Kmeano:
 
     def run(self, params):
         k = self.find_number_of_clusters(params)
-        kmeans = KMeans(k).fit(self.data_frame, sample_weight=sample_weights)
+        kmeans = KMeans(k).fit(self.data_frame, sample_weight=self.sample_weights)
         centers = kmeans.cluster_centers_
         self.labels = kmeans.labels_
-        center_matrix = self.generate_matrix(centers)
-        self.center_mst = self.generate_mst(center_matrix)
+        self.center_mst = self.generate_mst(centers)
         self.cluster_weights = self.calculate_cluster_weights()
-        while not self.satisfies_minmax(cluster_weights):
+        while not self.satisfies_minmax(self.cluster_weights):
             processed_clusters      = []
             most_unbalanced_cluster = self.find_unbalanced_cluster()
             self.labels             = self.rebalance(most_unbalanced_cluster, processed_clusters)
@@ -81,14 +81,10 @@ class Kmeano:
         # transfer points from origin cluster to destiny cluster
         return True
 
-    def generate_matrix(self, centers):
-        # return distance matrix for cluster centers
-        return True
-
-    def generate_mst(self, center_matrix):
+    def generate_mst(self, centers):
         # return minimum spanning tree from center_matrix
-        dist_matrix = shortest_path(center_matrix, 'auto')
-        return dist_matrix
+        clusters_distances = pairwise_distances(centers)
+        return shortest_path(clusters_distances)
 
     def find_unbalanced_cluster(self):
         # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
