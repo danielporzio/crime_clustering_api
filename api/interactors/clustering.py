@@ -31,7 +31,7 @@ def run_algorithm(data_frame, sample_weights, algorithm, algorithm_params):
         labels = hdbscan_algorithm(data_frame, algorithm_params)
     elif algorithm == 'WEIGHTED-MM-KMEANS':
         labels = kmeansMinMax(data_frame, sample_weights, algorithm_params)
-    elif algorithm == 'K-Mean-O':
+    elif algorithm == 'K-MEAN-O':
         labels = Kmeano(data_frame, sample_weights).run(algorithm_params)
     else:
         labels = kmeans.run(data_frame, sample_weights, algorithm_params)

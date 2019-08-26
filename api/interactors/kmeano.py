@@ -18,7 +18,7 @@ class Kmeano:
         self.labels = kmeans.labels_
         self.center_mst = self.generate_mst(centers)
         self.cluster_weights = self.calculate_cluster_weights()
-        while not self.satisfies_minmax(cluster_weights):
+        while not self.satisfies_minmax(self.cluster_weights):
             processed_clusters      = []
             most_unbalanced_cluster = self.find_unbalanced_cluster()
             self.labels             = self.rebalance(most_unbalanced_cluster, processed_clusters)
@@ -84,7 +84,7 @@ class Kmeano:
     def generate_mst(self, centers):
         # return minimum spanning tree from center_matrix
         clusters_distances = pairwise_distances(centers)
-        return shortest_path(clusters_distances, 'auto')
+        return shortest_path(clusters_distances)
 
     def find_unbalanced_cluster(self):
         # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
