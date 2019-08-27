@@ -61,21 +61,27 @@ class Kmeano:
         self.transfer_points(border_points, labels, cluster, neighbor)
 
     def weight_to_transfer(self, cluster, neighbor, median_weight):
-        # returns amount of points to be transferred so that:
-        # 1) both clusters end up with same weight
-        # 2) clusters end up with a weight equal to median_weight if posible
-        return True
+        # returns weight to be transferred from cluster to a neighbor
+        # or from a neighbor to cluster          
+        return abs(self.cluster_weights[cluster] - median_weight)
 
     def get_neighbors(self, cluster, processed_clusters):
         # return not processed neighbors
-        return True
+        neighbors = []
+        for i in range(len(self.center_mst)):
+            for j in range(len(self.center_mst)):
+                if i == cluster and not(j in processed_clusters) and self.center_mst[i,j] != 0:
+                    neighbors.append(j)
+        return neighbors
 
     def calculate_median_weight(self, cluster, neighbors):
         # return median weight between cluster and neighbors
         return True
 
-    def find_border_points(self, biggest_cluster, neighbor, n):
-        # return n border points in biggest_cluster with respect to neighbor
+    def find_border_points(self, cluster, neighbor, n):
+        # return x border points that in total weights n to
+        # transfer from cluster to neighbor or viceversa
+        # depending on which one has bigger size
         return True
 
     def calculate_cluster_weights(self):
