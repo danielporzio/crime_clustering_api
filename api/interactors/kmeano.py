@@ -3,12 +3,14 @@ from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans
 from scipy.sparse.csgraph import shortest_path
 import numpy as np
+from scipy.spatial.distance import cdist
 
 class Kmeano:
     def __init__(self, data_frame, sample_weights):
         self.data_frame         = data_frame
         self.sample_weights     = sample_weights
         self.labels             = None
+        self.center             = None
         self.center_mst         = None
         self.cluster_weights    = None
         self.min_cluster_weight = None
@@ -18,9 +20,9 @@ class Kmeano:
     def run(self, params):
         k = self.find_number_of_clusters(params)
         kmeans = KMeans(k).fit(self.data_frame, sample_weight=self.sample_weights)
-        centers = kmeans.cluster_centers_
+        self.centers = kmeans.cluster_centers_
         self.labels = kmeans.labels_
-        self.generate_mst(centers)
+        self.generate_mst()
         self.calculate_cluster_weights()
         while not self.satisfies_minmax():
             processed_clusters      = []
@@ -74,9 +76,26 @@ class Kmeano:
         # return median weight between cluster and neighbors
         return True
 
-    def find_border_points(self, biggest_cluster, neighbor, n):
-        # return n border points in biggest_cluster with respect to neighbor
-        return True
+    def find_border_points(self, origin_cluster, destiny_cluster, weight):
+        border_points = []
+        points_distances = [] # [(point, distance_diff),..]
+        # ordenar puntos
+        origin_cluster_points = [i for i, value in enumerate(self.labels) if value == origin_cluster]
+        for point in origin_cluster_points:
+            point_coord = np.array([self.data_frame.iloc[point].latitude, self.data_frame.iloc[point].longitude])
+            origin_coord = np.array(self.centers[origin_cluster])
+            destiny_coord = np.array(self.centers[destiny_cluster])
+            distance_diff = abs(cdist(point_coord, origin_coord) - cdist(point_coord, destiny_coord))
+            points_distances.append((point, distance_diff))
+        # sort de menor a mayor
+        points_distances.sort(key = lambda x: x[1])
+        # calcular peso hasta n
+        current_weight = 0
+        for point in points_distances:
+            if (current_weight + self.sample_weights[point]) < weight:
+                border_points.append(point)
+                current_weight += self.sample_weights[point]
+        return border_points
 
     def calculate_cluster_weights(self):
          label_a = np.array(self.labels)
@@ -87,9 +106,9 @@ class Kmeano:
         # transfer points from origin cluster to destiny cluster
         return True
 
-    def generate_mst(self, centers):
+    def generate_mst(self):
         # return minimum spanning tree from center_matrix
-        clusters_distances = pairwise_distances(centers)
+        clusters_distances = pairwise_distances(self.centers)
         self.center_mst = shortest_path(clusters_distances)
 
     def find_unbalanced_cluster(self):
