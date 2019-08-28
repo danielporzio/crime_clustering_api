@@ -6,29 +6,34 @@ import numpy as np
 from scipy.spatial.distance import cdist
 
 class Kmeano:
+    # Kmeano is a Kmeans variation that allows the user to input a max and min
+    # weight values for the clusters to be formed
+    # It works by post-processing data obtained from the Kmeans algorithm,
+    # re-assigning cluster points until the condition is met
+
     def __init__(self, data_frame, sample_weights):
         self.data_frame         = data_frame
         self.sample_weights     = sample_weights
         self.labels             = None
-        self.center             = None
-        self.center_mst         = None
+        self.centers            = None
+        self.centers_mst        = None
         self.cluster_weights    = None
         self.min_cluster_weight = None
         self.max_cluster_weight = None
 
 
     def run(self, params):
-        k = self.find_number_of_clusters(params)
-        kmeans = KMeans(k).fit(self.data_frame, sample_weight=self.sample_weights)
-        self.centers = kmeans.cluster_centers_
-        self.labels = kmeans.labels_
+        k             = self.find_number_of_clusters(params)
+        kmeans_output = KMeans(k).fit(self.data_frame, sample_weight=self.sample_weights)
+        self.centers  = kmeans_output.cluster_centers_
+        self.labels   = kmeans_output.labels_
         self.generate_mst()
         self.calculate_cluster_weights()
         while not self.satisfies_minmax():
             processed_clusters      = []
             most_unbalanced_cluster = self.find_unbalanced_cluster()
             self.labels             = self.rebalance(most_unbalanced_cluster, processed_clusters)
-            self.cluster_weights    = self.calculate_cluster_weights()
+            self.calculate_cluster_weights()
         return labels
 
     def find_number_of_clusters(self, params):
@@ -47,6 +52,26 @@ class Kmeano:
             min_clusters = floor(total_weight / self.max_cluster_weight)
         return floor((max_clusters + min_clusters) / 2)
 
+    def generate_mst(self):
+        # return minimum spanning tree from center_matrix
+        clusters_distances = pairwise_distances(self.centers)
+        self.centers_mst   = shortest_path(clusters_distances)
+
+    def calculate_cluster_weights(self):
+        label_a = np.array(self.labels)
+        weights_a = np.array(self.sample_weights)
+        self.cluster_weights = np.bincount(label_a, weights=weights_a)
+
+    def satisfies_minmax(self):
+        for size in self.cluster_weights:
+            if ((size < self.min_cluster_weight) or (size > self.max_cluster_weight)):
+                return False
+        return True
+
+    def find_unbalanced_cluster(self):
+        # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
+        return True
+
     def rebalance(self, cluster, processed_clusters):
         # recursive
         processed_clusters += [cluster]
@@ -57,6 +82,14 @@ class Kmeano:
         for neighbors in neighbors:
             self.rebalance(most_unbalanced_cluster, processed_clusters)
 
+    def get_neighbors(self, cluster, processed_clusters):
+        # return not processed neighbors
+        return True
+
+    def calculate_median_weight(self, cluster, neighbors):
+        # return median weight between cluster and neighbors
+        return True
+
     def balance(self, cluster, neighbor, median_weight):
         n = self.weight_to_transfer(cluster, neighbor, median_weight)
         border_points = self.find_border_points(cluster, neighbor, n)
@@ -66,14 +99,6 @@ class Kmeano:
         # returns amount of points to be transferred so that:
         # 1) both clusters end up with same weight
         # 2) clusters end up with a weight equal to median_weight if posible
-        return True
-
-    def get_neighbors(self, cluster, processed_clusters):
-        # return not processed neighbors
-        return True
-
-    def calculate_median_weight(self, cluster, neighbors):
-        # return median weight between cluster and neighbors
         return True
 
     def find_border_points(self, origin_cluster, destiny_cluster, weight):
@@ -97,28 +122,6 @@ class Kmeano:
                 current_weight += self.sample_weights[point]
         return border_points
 
-    def calculate_cluster_weights(self):
-         label_a = np.array(self.labels)
-         weights_a = np.array(self.sample_weights)
-         self.cluster_weights = np.bincount(label_a,  weights=weights_a)
-
     def transfer_points(self, points, origin, destiny):
         # transfer points from origin cluster to destiny cluster
-        return True
-
-    def generate_mst(self):
-        # return minimum spanning tree from center_matrix
-        clusters_distances = pairwise_distances(self.centers)
-        self.center_mst = shortest_path(clusters_distances)
-
-    def find_unbalanced_cluster(self):
-        # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
-        return True
-
-    def satisfies_minmax(self):
-        for size in self.cluster_weights:
-            if size < self.min_cluster_weight:
-                return False
-            if size > self.max_cluster_weight:
-                return False
         return True
