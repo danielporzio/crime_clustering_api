@@ -49,32 +49,26 @@ class Kmeano:
         # recursive
         processed_clusters += [cluster]
         neighbors = self.get_neighbors(cluster, processed_clusters)
-        median_weight = self.calculate_median_weight(cluster, neighbors)
-        for neighbors in neighbors:
-            self.balance(cluster, neighbor, median_weight)
-        for neighbors in neighbors:
-            self.rebalance(most_unbalanced_cluster, processed_clusters)
+        for neighbor in neighbors:
+            self.balance(cluster, neighbor)
+        for neighbor in neighbors:
+            self.rebalance(neighbor, processed_clusters)
 
-    def balance(self, cluster, neighbor, median_weight):
-        n = self.weight_to_transfer(cluster, neighbor, median_weight)
-        border_points = self.find_border_points(cluster, neighbor, n)
+    def balance(self, cluster, neighbor):
+        weight = (self.cluster_weights[cluster] + self.cluster_weights[neighbor]) / 2
+        border_points = self.find_border_points(cluster, neighbor, weight)
         self.transfer_points(border_points, labels, cluster, neighbor)
-
-    def weight_to_transfer(self, cluster, neighbor, median_weight):
-        # returns amount of points to be transferred so that:
-        # 1) both clusters end up with same weight
-        # 2) clusters end up with a weight equal to median_weight if posible
-        return True
 
     def get_neighbors(self, cluster, processed_clusters):
         # return not processed neighbors
-        return True
+        neighbors = []
+        for i in range(len(self.center_mst)):
+            for j in range(len(self.center_mst)):
+                if i == cluster and not(j in processed_clusters) and self.center_mst[i,j] != 0:
+                    neighbors.append(j)
+        return neighbors
 
-    def calculate_median_weight(self, cluster, neighbors):
-        # return median weight between cluster and neighbors
-        return True
-
-    def find_border_points(self, biggest_cluster, neighbor, n):
+    def find_border_points(self, biggest_cluster, neighbor, weight):
         # return n border points in biggest_cluster with respect to neighbor
         return True
 
