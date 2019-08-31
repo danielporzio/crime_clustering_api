@@ -90,11 +90,6 @@ class Kmeano:
                     neighbors.append(j)
         return neighbors
 
-    def balance(self, cluster, neighbor, median_weight):
-        n = self.weight_to_transfer(cluster, neighbor, median_weight)
-        border_points = self.find_border_points(cluster, neighbor, n)
-        self.transfer_points(border_points, labels, cluster, neighbor)
-
     def find_border_points(self, origin_cluster, destiny_cluster, weight):
         border_points = []
         points_distances = [] # [(point, distance_diff),..]
@@ -120,15 +115,6 @@ class Kmeano:
         weight = (self.cluster_weights[cluster] + self.cluster_weights[neighbor]) / 2
         border_points = self.find_border_points(cluster, neighbor, weight)
         self.transfer_points(border_points, labels, cluster, neighbor)
-
-    def find_border_points(self, biggest_cluster, neighbor, weight):
-        # return n border points in biggest_cluster with respect to neighbor
-        return True
-
-    def calculate_cluster_weights(self):
-         label_a = np.array(self.labels)
-         weights_a = np.array(self.sample_weights)
-         self.cluster_weights = np.bincount(label_a,  weights=weights_a)
 
     def transfer_points(self, points, origin, destiny):
         # transfer points from origin cluster to destiny cluster
