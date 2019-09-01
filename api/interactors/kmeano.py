@@ -31,9 +31,9 @@ class Kmeano:
         self.calculate_cluster_weights()
         while not self.satisfies_minmax():
             processed_clusters      = []
+            self.calculate_cluster_weights()
             most_unbalanced_cluster = self.find_unbalanced_cluster()
             self.labels             = self.rebalance(most_unbalanced_cluster, processed_clusters)
-            self.calculate_cluster_weights()
         return labels
 
     def find_number_of_clusters(self, params):
@@ -70,7 +70,11 @@ class Kmeano:
 
     def find_unbalanced_cluster(self):
         # returns most unbalanced cluster (biggest or smallest) with respect to ideal average weight
-        return True
+        total_weight = sum(self.cluster_weights)
+        average_weight = total_weight / len(self.cluster_weights)
+        diff_arr = list(map(lambda x: abs(average_weight - x), self.cluster_weights))
+        max_index = diff_arr.index(max(diff_arr))
+        return max_index
 
     def rebalance(self, cluster, processed_clusters):
         # recursive
@@ -84,9 +88,9 @@ class Kmeano:
     def get_neighbors(self, cluster, processed_clusters):
         # return not processed neighbors
         neighbors = []
-        for i in range(len(self.center_mst)):
-            for j in range(len(self.center_mst)):
-                if i == cluster and not(j in processed_clusters) and self.center_mst[i,j] != 0:
+        for i in range(len(self.centers_mst)):
+            for j in range(len(self.centers_mst)):
+                if i == cluster and not(j in processed_clusters) and self.centers_mst[i,j] != 0:
                     neighbors.append(j)
         return neighbors
 
@@ -114,8 +118,14 @@ class Kmeano:
     def balance(self, cluster, neighbor):
         weight = (self.cluster_weights[cluster] + self.cluster_weights[neighbor]) / 2
         border_points = self.find_border_points(cluster, neighbor, weight)
-        self.transfer_points(border_points, labels, cluster, neighbor)
+        self.transfer_points(border_points, cluster, neighbor)
 
     def transfer_points(self, points, origin, destiny):
-        # transfer points from origin cluster to destiny cluster
-        return True
+        # transfer points from origin cluster to destiny cluster 
+        all_coords = np.asmatrix(self.data_frame)
+        new_labels = self.labels
+        i = 0
+        for coord in all_coords:
+            if coord in points and new_labels[i] == origin:
+                new_labels[i] = destiny
+        self.labels = new_labels
