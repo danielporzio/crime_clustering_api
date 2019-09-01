@@ -3,6 +3,7 @@ from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans
 from scipy.sparse.csgraph import shortest_path
 import numpy as np
+import pdb
 from scipy.spatial.distance import cdist
 
 class Kmeano:
@@ -16,10 +17,11 @@ class Kmeano:
         self.sample_weights     = sample_weights
         self.labels             = None
         self.centers            = None
-        self.centers_mst        = None
+        self.adjacency          = None
         self.cluster_weights    = None
         self.min_cluster_weight = None
         self.max_cluster_weight = None
+        self.clusters_points    = None
 
 
     def run(self, params):
@@ -27,14 +29,17 @@ class Kmeano:
         kmeans_output = KMeans(k).fit(self.data_frame, sample_weight=self.sample_weights)
         self.centers  = kmeans_output.cluster_centers_
         self.labels   = kmeans_output.labels_
-        self.generate_mst()
+        self.generate_adjacency_matrix()
         self.calculate_cluster_weights()
-        while not self.satisfies_minmax():
+        i = 0
+        while not self.satisfies_minmax() and i < 1000:
+            print('Iteracion - ', i)
             processed_clusters      = []
             self.calculate_cluster_weights()
             most_unbalanced_cluster = self.find_unbalanced_cluster()
-            self.labels             = self.rebalance(most_unbalanced_cluster, processed_clusters)
-        return labels
+            self.rebalance(most_unbalanced_cluster, processed_clusters)
+            i = i + 1
+        return self.labels
 
     def find_number_of_clusters(self, params):
         total_weight = len(self.data_frame)
@@ -52,10 +57,27 @@ class Kmeano:
             min_clusters = floor(total_weight / self.max_cluster_weight)
         return floor((max_clusters + min_clusters) / 2)
 
-    def generate_mst(self):
-        # return minimum spanning tree from center_matrix
-        clusters_distances = pairwise_distances(self.centers)
-        self.centers_mst   = shortest_path(clusters_distances)
+    def generate_adjacency_matrix(self):
+        # returns adjacency matrix of clusters
+        epsilon = 0.01
+        number_of_clusters = len(self.centers)
+        adjacency = np.zeros((number_of_clusters, number_of_clusters))
+        clusters_points = {}
+        for cluster in range(number_of_clusters):
+            points_indexes = np.where(self.labels == cluster)
+            clusters_points[cluster] = np.asmatrix(self.data_frame)[points_indexes]
+        self.clusters_points = clusters_points
+
+        for cluster in range(number_of_clusters):
+            for possible_neighbour in range(number_of_clusters):
+                if cluster != possible_neighbour:
+                    distances = cdist(clusters_points[cluster], clusters_points[possible_neighbour])
+                    if distances.min() < epsilon:
+                        adjacency[cluster, possible_neighbour] = 1
+        # agregar caso en que un cluster quede sin vecinos
+        # sabemos que los clusters tienen que tener siempre como vecino a su cluster
+        # mas cercano
+        self.adjacency = adjacency
 
     def calculate_cluster_weights(self):
         label_a = np.array(self.labels)
@@ -88,44 +110,52 @@ class Kmeano:
     def get_neighbors(self, cluster, processed_clusters):
         # return not processed neighbors
         neighbors = []
-        for i in range(len(self.centers_mst)):
-            for j in range(len(self.centers_mst)):
-                if i == cluster and not(j in processed_clusters) and self.centers_mst[i,j] != 0:
+        for i in range(len(self.adjacency)):
+            for j in range(len(self.adjacency)):
+                if i == cluster and not(j in processed_clusters) and self.adjacency[i,j] == 1:
                     neighbors.append(j)
         return neighbors
+
+    def balance(self, cluster, neighbor):
+        average_weight = (self.cluster_weights[cluster] + self.cluster_weights[neighbor]) / 2
+        if self.cluster_weights[cluster] > self.cluster_weights[neighbor]:
+            origin = cluster
+            destiny = neighbor
+        else:
+            origin = neighbor
+            destiny = cluster
+        weight_to_transfer = self.cluster_weights[origin] - average_weight
+        border_points = self.find_border_points(origin, destiny, weight_to_transfer)
+        self.transfer_points(border_points, destiny)
 
     def find_border_points(self, origin_cluster, destiny_cluster, weight):
         border_points = []
         points_distances = [] # [(point, distance_diff),..]
         # ordenar puntos
         origin_cluster_points = [i for i, value in enumerate(self.labels) if value == origin_cluster]
+        # origin_cluster_points = self.clusters_points[origin_cluster]
         for point in origin_cluster_points:
             point_coord = np.array([self.data_frame.iloc[point].latitude, self.data_frame.iloc[point].longitude])
-            origin_coord = np.array(self.centers[origin_cluster])
+            # origin_coord = np.array(self.centers[origin_cluster])
             destiny_coord = np.array(self.centers[destiny_cluster])
-            distance_diff = abs(cdist(point_coord, origin_coord) - cdist(point_coord, destiny_coord))
-            points_distances.append((point, distance_diff))
+            # distance_diff = abs(cdist([point_coord], [origin_coord]) - cdist([point_coord], [destiny_coord]))
+            distance_diff = cdist([point_coord], [destiny_coord])
+            points_distances.append((point, distance_diff[0][0]))
         # sort de menor a mayor
         points_distances.sort(key = lambda x: x[1])
+        print(points_distances[0], points_distances[len(points_distances)-1])
         # calcular peso hasta n
         current_weight = 0
         for point in points_distances:
-            if (current_weight + self.sample_weights[point]) < weight:
-                border_points.append(point)
-                current_weight += self.sample_weights[point]
+            if (current_weight + self.sample_weights[point[0]]) < weight:
+                border_points.append(point[0])
+                current_weight += self.sample_weights[point[0]]
         return border_points
 
-    def balance(self, cluster, neighbor):
-        weight = (self.cluster_weights[cluster] + self.cluster_weights[neighbor]) / 2
-        border_points = self.find_border_points(cluster, neighbor, weight)
-        self.transfer_points(border_points, cluster, neighbor)
-
-    def transfer_points(self, points, origin, destiny):
-        # transfer points from origin cluster to destiny cluster 
-        all_coords = np.asmatrix(self.data_frame)
+    def transfer_points(self, points, destiny):
+        # transfer points from origin cluster to destiny cluster
         new_labels = self.labels
-        i = 0
-        for coord in all_coords:
-            if coord in points and new_labels[i] == origin:
-                new_labels[i] = destiny
+        for index in points:
+            new_labels[index] = destiny
         self.labels = new_labels
+        self.calculate_cluster_weights()
