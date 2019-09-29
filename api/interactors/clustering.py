@@ -2,6 +2,7 @@ import pandas as pd
 import hdbscan
 from sklearn.cluster import DBSCAN
 from api.interactors.weighted_mm_kmeans import main_kmeans_weighted
+from datetime import datetime
 
 from . import kmeans
 from .kmeano import Kmeano
@@ -9,7 +10,10 @@ from .kmeano import Kmeano
 def clusterize(data, algorithm, algorithm_params):
     df_ = generate_data_frame(data)
     sample_weights = get_weights(data, algorithm_params['use_weights'])
+    startTime = datetime.now()
     labels = run_algorithm(df_, sample_weights, algorithm, algorithm_params)
+    print(f'El algoritmo {algorithm} tardó:')
+    print(datetime.now() - startTime)
     return build_model(df_, labels, data, algorithm_params['use_weights'])
 
 def generate_data_frame(data):
