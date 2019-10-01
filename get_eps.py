@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 
 def data(number):
-    data = Crime.objects.all()[:number].values()
+    data = Crime.objects.order_by('occured_at')[:number].values()
     variables = data[0].keys()
     dataframe = pd.DataFrame(data, columns=variables)
     include = ['latitude', 'longitude']
