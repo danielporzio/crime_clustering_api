@@ -124,7 +124,7 @@ def run_seed(self, mode):
                         'location_description': row[7],
                         'arrest': bool(row[8]),
                         'domestic': bool(row[9]),
-                        'distrct': int(row[12]) if isDigit(row[11]) else None,
+                        'distrct': int(row[11]) if isDigit(row[11]) else None,
                         'community_areas': int(row[13]) if isDigit(row[13]) else None,
                         'year': int(row[17]) if isDigit(row[17]) else None,
                         'latitude': float(latitude),
