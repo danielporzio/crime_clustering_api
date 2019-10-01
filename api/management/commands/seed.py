@@ -107,30 +107,27 @@ def run_seed(self, mode):
     :param mode: refresh / clear
     :return:
     """
-    with open('data/Chicago_Crimes_2005_to_2007.csv') as csv_file:
+    with open('data/Crimes_2019.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         first = True
-        cant = 0
         for row in csv_reader:
-            cant = cant + 1
-            if cant < 50000:
-                if first:
-                    first = False
-                else:
-                    latitude = row[20]
-                    longitude = row[21]
-                    if latitude and longitude:
-                        attributes = {
-                            'occured_at': datetime.strptime(row[3], '%m/%d/%Y %H:%M:%S %p') if validateDate(row[3]) else None,
-                            'primary_type': row[6],
-                            'description': row[7],
-                            'location_description': row[8],
-                            'arrest': bool(row[9]),
-                            'domestic': bool(row[10]),
-                            'distrct': int(row[12]) if isDigit(row[12]) else None,
-                            'community_areas': int(row[14]) if isDigit(row[14]) else None,
-                            'year': int(row[18]) if isDigit(row[18]) else None,
-                            'latitude': float(latitude),
-                            'longitude': float(longitude)
-                        }
-                        create_crime(attributes)
+            if first:
+                first = False
+            else:
+                latitude = row[19]
+                longitude = row[20]
+                if latitude and longitude:
+                    attributes = {
+                        'occured_at': datetime.strptime(row[2], '%m/%d/%Y %H:%M:%S %p') if validateDate(row[2]) else None,
+                        'primary_type': row[5],
+                        'description': row[6],
+                        'location_description': row[7],
+                        'arrest': bool(row[8]),
+                        'domestic': bool(row[9]),
+                        'distrct': int(row[11]) if isDigit(row[11]) else None,
+                        'community_areas': int(row[13]) if isDigit(row[13]) else None,
+                        'year': int(row[17]) if isDigit(row[17]) else None,
+                        'latitude': float(latitude),
+                        'longitude': float(longitude)
+                    }
+                    create_crime(attributes)
