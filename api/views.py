@@ -10,7 +10,7 @@ class CreateView(generics.ListCreateAPIView):
         serializer.save()
 
     def get_queryset(self):
-        model = Crime.objects
+        model = Crime.objects.order_by('occured_at')
         params = self.request.GET.copy()
 
         algorithm = params.pop('algorithm', ['None'])[0]
@@ -39,7 +39,7 @@ class CreateView(generics.ListCreateAPIView):
             for attribute in filtered_attributes:
                 model = model.intersection(attribute)
 
-        model = model.all()[:1000]
+        model = model[:30000]
         if algorithm == 'None':
             return model
         return clustering.clusterize(model.values(), algorithm, algorithm_params)
