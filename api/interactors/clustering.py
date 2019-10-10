@@ -75,6 +75,10 @@ def hdbscan_algorithm(data_frame, params):
 def kmeansMinMax(data_frame, sample_weights, params):
     n_clusters = 8
     if params['min_max'] == 'True':
-      min = int(params['min_cluster_weight'])
-      max = int(params['max_cluster_weight'])
+      min = None
+      max = None
+      if params['min_cluster_weight'] != 'None':
+        min = int(params['min_cluster_weight'])
+      if params['max_cluster_weight'] != 'None':
+        max = int(params['max_cluster_weight'])
     return main_kmeans_weighted(data_frame, sample_weights, min, max)

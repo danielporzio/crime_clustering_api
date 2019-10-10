@@ -29,7 +29,6 @@ class Kmeano:
         self.calculate_cluster_weights()
         i = 0
         while not self.satisfies_minmax() and i < 1000:
-            print('Iteracion - ', i)
             processed_clusters = []
             most_unbalanced_cluster = self.find_unbalanced_cluster()
             self.rebalance(most_unbalanced_cluster, processed_clusters)
@@ -41,7 +40,7 @@ class Kmeano:
         if params['use_weights'] == 'True':
             total_weight = sum(self.sample_weights)
 
-        max_clusters = 20
+        max_clusters = 50
         if params['min_cluster_weight'] != 'None':
             self.min_cluster_weight = int(params['min_cluster_weight'])
             max_clusters = floor(total_weight / self.min_cluster_weight)
@@ -88,7 +87,8 @@ class Kmeano:
 
     def satisfies_minmax(self):
         for size in self.cluster_weights:
-            if ((size < self.min_cluster_weight) or (size > self.max_cluster_weight)):
+            if (( self.min_cluster_weight != None and size < self.min_cluster_weight) or 
+                ( self.max_cluster_weight != None and size > self.max_cluster_weight )):
                 return False
         return True
 
@@ -147,7 +147,6 @@ class Kmeano:
         #     points_distances.append((origin_cluster_points[i], distances_to_center[i][0]))
 
         points_distances.sort(key = lambda x: x[1])
-        print(points_distances[0], points_distances[len(points_distances) - 1])
         current_weight = 0
         for point in points_distances:
             if (current_weight + self.sample_weights[point[0]]) < weight:

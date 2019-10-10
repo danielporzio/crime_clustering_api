@@ -5,6 +5,10 @@ import numpy as np
 import pdb
 import math
 
+import pulp
+import random
+import argparse
+
 def l2_distance(point1, point2):
     return sum([(float(i)-float(j))**2 for (i,j) in zip(point1, point2)])
 
@@ -97,7 +101,7 @@ def compute_centers(clusters, dataset,weights=None):
             cluster_centers[j][i] = cluster_centers[j][i]/float(cluster_weights[j])
     return clusters, cluster_centers
 
-def minsize_kmeans_weighted(dataset, k, weights=None, min_weight=0, max_weight=None,max_iters=1,uiter=None):
+def minsize_kmeans_weighted(dataset, k, weights=None, min_weight=0, max_weight=None,max_iters=999,uiter=None):
     """
     @dataset - numpy matrix (or list of lists) - of point coordinates
     @k - number of clusters
@@ -131,6 +135,42 @@ def minsize_kmeans_weighted(dataset, k, weights=None, min_weight=0, max_weight=N
 
     return clusters, centers
 
+def read_data(datafile):
+    data = []
+    with open(datafile, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line != '':
+                d = [float(i) for i in line.split()]
+                data.append(d)
+    return data
+
+def read_weights(weightfile):
+    weights = []
+    with open(weightfile, 'r') as f:
+        for line in f:
+            weights += [float(i) for i in line.strip().split()]
+    return weights
+
+def cluster_quality(cluster):
+    if len(cluster) == 0:
+        return 0.0
+
+    quality = 0.0
+    for i in range(len(cluster)):
+        for j in range(i, len(cluster)):
+            quality += l2_distance(cluster[i], cluster[j])
+    return quality / len(cluster)
+
+def compute_quality(data, cluster_indices):
+    clusters = dict()
+    for i, c in enumerate(cluster_indices):
+        if c in clusters:
+            clusters[c].append(data[i])
+        else:
+            clusters[c] = [data[i]]
+    return sum(cluster_quality(c) for c in clusters.values())
+
 def weighted_mm_kmeans(data = [], k=5, weights = [], min_weight = 1, max_weight = 50, numIter = 1):
   best = None
   best_clusters = None
@@ -145,8 +185,14 @@ def weighted_mm_kmeans(data = [], k=5, weights = [], min_weight = 1, max_weight 
     return ([-1] * (len(data)))
 
 def getKforMinMax(min, max, total_weight):
-  k_min = total_weight / max
-  k_max = total_weight / min
+  if max:
+    k_min = total_weight / max
+  else:
+    k_min = 2
+  if min:
+    k_max = total_weight / min
+  else:
+    k_max = 50
   return (round(k_min), math.floor(k_max))
 
 def main_kmeans_weighted(data_frames, sample_weights, min, max):
@@ -163,10 +209,11 @@ def main_kmeans_weighted(data_frames, sample_weights, min, max):
       row.append(data[i][j])
     new_data.append(row)
   (k_min, k_max) = getKforMinMax(min, max, sum(weights))
-  for i in range(k_min, k_max):
-    print(i)
-    res = weighted_mm_kmeans(new_data, i, weights, min, max , 1)
-    if res[0] > -1:
-      return res
+  #for i in range(k_min, k_max):
+  k =( k_min + k_max) / 2
+  print(k)
+  res = weighted_mm_kmeans(new_data, int(k), weights, min, max , 1)
+  # if res[0] > -1:
+  #   return res
   return res
 
