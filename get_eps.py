@@ -14,7 +14,7 @@ def data(number):
 
 def plot(number):
     X = data(number)
-    neigh = NearestNeighbors(n_neighbors=2)
+    neigh = NearestNeighbors(n_neighbors=2) ## this value can change
     nbrs = neigh.fit(X)
     distances, indices = nbrs.kneighbors(X)
     distances = np.sort(distances, axis=0)
