@@ -87,7 +87,7 @@ class Kmeano:
 
     def satisfies_minmax(self):
         for size in self.cluster_weights:
-            if (( self.min_cluster_weight != None and size < self.min_cluster_weight) or 
+            if (( self.min_cluster_weight != None and size < self.min_cluster_weight) or
                 ( self.max_cluster_weight != None and size > self.max_cluster_weight )):
                 return False
         return True
@@ -99,14 +99,22 @@ class Kmeano:
         diff_arr = list(map(lambda x: abs(average_weight - x), self.cluster_weights))
         return diff_arr.index(max(diff_arr))
 
-    def rebalance(self, cluster, processed_clusters):
-        # recursive
-        processed_clusters += [cluster]
-        neighbors = self.get_neighbors(cluster, processed_clusters)
-        for neighbor in neighbors:
-            self.balance(cluster, neighbor)
-        for neighbor in neighbors:
-            self.rebalance(neighbor, processed_clusters)
+    def rebalance(self, origin, processed_clusters):
+        for cluster in self.clusters_by_distance(origin):
+            processed_clusters += [cluster]
+            neighbors = self.get_neighbors(cluster, processed_clusters)
+            for neighbor in neighbors:
+                self.balance(cluster, neighbor)
+        # for neighbor in neighbors:
+        #     self.rebalance(neighbor, processed_clusters)
+
+    def clusters_by_distance(self, cluster):
+        clusters_path = []
+        centroid_distances = cdist([self.centers[cluster]], self.centers)
+        for distance in np.sort(centroid_distances[0]):
+            clusters_path += [centroid_distances[0].tolist().index(distance)]
+        return clusters_path
+
 
     def get_neighbors(self, cluster, processed_clusters):
         # return not processed neighbors
