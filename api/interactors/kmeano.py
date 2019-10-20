@@ -105,8 +105,6 @@ class Kmeano:
             neighbors = self.get_neighbors(cluster, processed_clusters)
             for neighbor in neighbors:
                 self.balance(cluster, neighbor)
-        # for neighbor in neighbors:
-        #     self.rebalance(neighbor, processed_clusters)
 
     def clusters_by_distance(self, cluster):
         clusters_path = []
