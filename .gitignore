@@ -8,4 +8,3 @@ getting-started/*
 .vscode/*
 local_settings.py
 .history/
-data/
